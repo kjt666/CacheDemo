@@ -19,6 +19,7 @@ public class MyInterceptor implements Interceptor {
         String url = original.url().toString();
         Response response;
         if (App.Companion.getCacheUrls().contains(url)) {
+            String tag = url.hashCode() + "";
             //设置请求头
             App app = App.Companion.getApp();
             String modified = (String) SPUtil.get(app, SPContants.LAST_MODIFIED + url, "");
@@ -34,14 +35,15 @@ public class MyInterceptor implements Interceptor {
                 etag = response.headers().get("ETag");
                 modified = response.headers().get("Last-Modified");
                 String contentType = response.headers().get("Content-Type");
-                SPUtil.put(app, SPContants.ETag + url, etag == null ? "" : etag);
-                SPUtil.put(app, SPContants.LAST_MODIFIED + url, modified == null ? "" : modified);
-                SPUtil.put(app, SPContants.CONTENT_TYPE + url, contentType == null ? "application/json" : contentType);
-                boolean b = FileUtil.cacheData(String.valueOf(url.hashCode()), getResponseInfo(response));
+                SPUtil.put(app, SPContants.ETag + tag, etag == null ? "" : etag);
+                SPUtil.put(app, SPContants.LAST_MODIFIED + tag, modified == null ? "" : modified);
+                SPUtil.put(app, SPContants.CONTENT_TYPE + tag, contentType == null ? "application/json" : contentType);
+                boolean b = FileUtil.cacheData(tag, getResponseInfo(response));
                 if (b) LogUtil.i("缓存成功");
             }
+            //304使用本地缓存设置给response
             if (response.code() == 304) {
-                String data = FileUtil.getCacheData(String.valueOf(url.hashCode()));
+                String data = FileUtil.getCacheData(tag);
                 if (data != null) {
                     response = response.newBuilder()
                             .code(200)
