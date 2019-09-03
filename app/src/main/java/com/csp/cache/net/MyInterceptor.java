@@ -22,8 +22,8 @@ public class MyInterceptor implements Interceptor {
             String tag = url.hashCode() + "";
             //设置请求头
             App app = App.Companion.getApp();
-            String modified = (String) SPUtil.get(app, SPContants.LAST_MODIFIED + url, "");
-            String etag = (String) SPUtil.get(app, SPContants.ETag + url, "");
+            String modified = (String) SPUtil.get(app, SPContants.LAST_MODIFIED + tag, "");
+            String etag = (String) SPUtil.get(app, SPContants.ETag + tag, "");
             original = original.newBuilder()
                     .addHeader("If-Modified-Since", modified)
                     .addHeader("If-None-Match", etag)
